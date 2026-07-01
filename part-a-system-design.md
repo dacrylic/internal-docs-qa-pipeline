@@ -16,28 +16,29 @@ I would separate offline refresh from online serving so ingestion failures do no
 The online path is a small query service behind the existing API gateway. It authenticates the user, converts the question to an embedding, applies department or document-level access filters, searches the active FAISS index for top-k permitted chunks, and builds a prompt containing only those passages plus citation metadata. The prompt is sent to a quantized LLM served on the shared GPU cluster. The user receives a concise answer with citations; logs, metrics, and feedback are captured for monitoring and evaluation. This keeps the latency-sensitive path small: auth, retrieval, prompt construction, generation, and response.
 
 ```mermaid
-flowchart LR
+flowchart TB
   subgraph Offline["Offline monthly refresh"]
-    direction LR
+    direction TB
     A([Updated docs]) --> B[(Versioned snapshot)]
-    B --> C[Chunk text + metadata]
-    C --> D[Lightweight embedding model]
-    D --> E[(FAISS index)]
-    E --> F[Validate + promote]
+    B --> C[Chunk + metadata]
+    C --> D[Embed chunks]
+    D --> E[(New FAISS index)]
+    E --> F[Validate]
+    F --> G[(Active FAISS index)]
   end
 
   subgraph Online["Online serving path"]
-    direction LR
-    G([User query + auth]) --> H[Filter allowed docs]
-    H --> I[Top-k search]
-    I --> J[Prompt with citations]
-    J --> K[Quantized LLM]
-    K --> L([Answer + citations])
+    direction TB
+    H([User query + auth]) --> I[Apply access filters]
+    I --> J[Top-k retrieval]
+    J --> K[Prompt with citations]
+    K --> L[Quantized LLM]
+    L --> M([Answer + citations])
   end
 
-  F --> I
-  I --> M[[Logs, metrics, feedback]]
-  L --> M
+  G --> J
+  J --> N[[Logs, metrics, feedback]]
+  M --> N
 ```
 
 ## Key decisions and tradeoffs

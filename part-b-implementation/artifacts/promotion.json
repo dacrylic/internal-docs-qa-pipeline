@@ -1,0 +1,9 @@
+{
+  "promoted": true,
+  "checks": {
+    "candidate_positive_f1_beats_baseline": true,
+    "candidate_positive_recall_beats_baseline": true,
+    "candidate_positive_recall_at_least_0_40": true
+  },
+  "rationale": "Promote only if the candidate beats the baseline on positive-class F1 and recall, while catching a useful share of emerging skills."
+}

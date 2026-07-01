@@ -1,0 +1,8 @@
+{
+  "source_file": "data\\raw\\skillsfuture_unique_skills.csv",
+  "source_sha256": "5bb32269ffd7bdcbcfbde52b6837dde64ce33529938161ab24eb62508b2eb390",
+  "rows": 2201,
+  "positive_rows": 201,
+  "negative_rows": 2000,
+  "label": "Emerging Skills"
+}

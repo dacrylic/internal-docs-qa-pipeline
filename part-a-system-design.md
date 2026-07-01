@@ -16,7 +16,7 @@ I would separate offline refresh from online serving so ingestion failures do no
 The online path is a small query service behind the existing API gateway. It authenticates the user, converts the question to an embedding, applies department or document-level access filters, searches the active FAISS index for top-k permitted chunks, and builds a prompt containing only those passages plus citation metadata. The prompt is sent to a quantized LLM served on the shared GPU cluster. The user receives a concise answer with citations; logs, metrics, and feedback are captured for monitoring and evaluation. This keeps the latency-sensitive path small: auth, retrieval, prompt construction, generation, and response.
 
 ```mermaid
-flowchart TB
+flowchart LR
   subgraph Offline["Offline monthly refresh"]
     direction TB
     A([Updated docs]) --> B[(Versioned snapshot)]
@@ -30,13 +30,13 @@ flowchart TB
   subgraph Online["Online serving path"]
     direction TB
     H([User query + auth]) --> I[Apply access filters]
-    I --> J[Top-k retrieval]
+    I --> J[Top-k retrieval from active index]
     J --> K[Prompt with citations]
     K --> L[Quantized LLM]
     L --> M([Answer + citations])
   end
 
-  G --> J
+  G -. used by .-> J
   J --> N[[Logs, metrics, feedback]]
   M --> N
 ```
